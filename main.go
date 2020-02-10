@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
@@ -9,14 +10,34 @@ import (
 )
 
 var (
-	db *gorm.DB
+	db 				*gorm.DB
 	connectionError error
 )
 
 type Team struct {
 	gorm.Model
-	Name string
+	Name 		 string
 	CurrentValue int
+}
+
+type Split struct {
+	gorm.Model
+	League string
+	Season string
+	Year   int
+}
+
+type Value struct {
+	gorm.Model
+	TeamID  int
+	SplitID int
+	Week 	int
+}
+
+func GetTeams(c *gin.Context) {
+	var teams []Team
+	db.Find(&teams)
+	c.JSON(http.StatusOK, &teams)
 }
 
 func GetTeam(c *gin.Context) {
@@ -25,15 +46,36 @@ func GetTeam(c *gin.Context) {
 	db.First(&team, teamID)
 	
 	if team.ID == 0 {
-		c.JSON(404, gin.H{
-			"error": fmt.Sprintf("No team with ID: %v was found", teamID),
-		})
+		c.String(http.StatusNotFound, fmt.Sprintf("No team with ID: %v was found", teamID))
 	} else {
-		c.JSON(200, gin.H{
+		c.JSON(http.StatusOK, gin.H{
 			"id": team.ID,
 			"name": team.Name,
 			"value": team.CurrentValue,
 		})
+	}
+}
+
+func CreateTeam(c *gin.Context) {
+	name := c.Query("name")
+	team := Team{Name: name, CurrentValue: 500}
+
+	db.Create(&Team{Name: name, CurrentValue: 500})
+
+	if db.NewRecord(team) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Team succesfully created",
+			"team": gin.H{
+				"id": team.ID,
+				"name": team.Name,
+				"value": team.CurrentValue,
+			},
+			"endpoints": gin.H{
+				"GET": fmt.Sprintf("/v1/teams/%v", team.ID),
+			},
+		})
+	} else {
+		c.String(http.StatusInternalServerError, "Unable to create resource")
 	}
 }
 
@@ -64,7 +106,9 @@ func main() {
 	// API Version 1
 	v1 := router.Group("/v1")
 	{
+		v1.GET("/teams", GetTeams)
 		v1.GET("/teams/:team_id", GetTeam)
+		v1.POST("/teams", CreateTeam)
 	}
 
 	router.Run(":8080")
