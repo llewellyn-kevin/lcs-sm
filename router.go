@@ -17,8 +17,10 @@ func SetRoutes() {
 	v1 := router.Group("/v1")
 	{
 		v1.GET("/teams", GetTeams)
-		v1.GET("/teams/:team_id", GetTeam)
+		v1.GET("/teams/:team-id", GetTeam)
 		v1.POST("/teams", CreateTeam)
+		v1.DELETE("/teams/:team-id", DeleteTeam)
+		v1.PUT("/teams/:team-id", UpdateTeam)
 	}
 
 	router.Run(":8080")
