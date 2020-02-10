@@ -1,7 +1,7 @@
 package main
 
 import (
-	// "fmt"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
@@ -24,11 +24,17 @@ func GetTeam(c *gin.Context) {
 	var team Team
 	db.First(&team, teamID)
 	
-	c.JSON(200, gin.H{
-		"id": teamID,
-		"name": team.Name,
-		"value": team.CurrentValue,
-	})
+	if team.ID == 0 {
+		c.JSON(404, gin.H{
+			"error": fmt.Sprintf("No team with ID: %v was found", teamID),
+		})
+	} else {
+		c.JSON(200, gin.H{
+			"id": team.ID,
+			"name": team.Name,
+			"value": team.CurrentValue,
+		})
+	}
 }
 
 func main() {
