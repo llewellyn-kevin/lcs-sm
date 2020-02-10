@@ -4,9 +4,10 @@ import(
 	"github.com/jinzhu/gorm"
 )
 
-type Value struct {
+type StockValue struct {
 	gorm.Model
 	TeamID  int
 	SplitID int
 	Week 	int
+	Value	int
 }

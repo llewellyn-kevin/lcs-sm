@@ -1,6 +1,8 @@
 package main
 
 import(
+	"github.com/llewellyn-kevin/lcs-sm/models"
+
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 )
@@ -17,9 +19,8 @@ func ConnectDB(name string) {
 		panic(connectionError)
 	}
 
-	// TEMP: Seed the database manually
-	//db.AutoMigrate(&Team{})
-
-	//db.Create(&Team{Name: "Cloud9", CurrentValue: 605})
-	//db.Create(&Team{Name: "Team Liquid", CurrentValue: 580})
+	// Database Migrations
+	db.AutoMigrate(&models.Team{})
+	db.AutoMigrate(&models.Split{})
+	db.AutoMigrate(&models.StockValue{})
 }
