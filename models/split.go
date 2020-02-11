@@ -6,7 +6,8 @@ import(
 
 type Split struct {
 	gorm.Model
-	League string
-	Season string
-	Year   int
+	League 		 string
+	Season 		 string
+	Year   		 int
+	StockValues  []StockValue
 }

@@ -6,6 +6,7 @@ import(
 
 type Team struct {
 	gorm.Model
-	Name 		 string
-	CurrentValue int
+	Name 		  string
+	CurrentValue  int
+	StockValues	  []StockValue
 }

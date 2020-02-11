@@ -6,8 +6,8 @@ import(
 
 type StockValue struct {
 	gorm.Model
-	TeamID  int
-	SplitID int
-	Week 	int
-	Value	int
+	TeamID  	int
+	SplitID 	int
+	Week 		int
+	Value		int
 }
