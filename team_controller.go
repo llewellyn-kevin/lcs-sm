@@ -19,7 +19,11 @@ func GetTeams(c *gin.Context) {
 func GetTeam(c *gin.Context) {
 	teamID := c.Param("team-id")
 	var team models.Team
+	var stockValues []models.StockValue
+
 	db.First(&team, teamID)
+	db.Where("team_id = ?", teamID).Find(&stockValues)
+	team.StockValues = stockValues
 	
 	if team.ID == 0 {
 		c.String(http.StatusNotFound, fmt.Sprintf("No team with ID: %v was found", teamID))
