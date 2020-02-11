@@ -13,6 +13,10 @@ import(
 func GetStockValues(c *gin.Context) {
 	var stockValues []models.StockValue
 	db.Find(&stockValues)
+	for _, sv := range stockValues {
+		db.First(&sv.Team, sv.TeamID)
+		db.First(&sv.Split, sv.SplitID)
+	}
 	c.JSON(http.StatusOK, &stockValues)
 }
 
@@ -20,6 +24,8 @@ func GetStockValue(c *gin.Context) {
 	stockValueID := c.Param("stock-value-id")
 	var stockValue models.StockValue
 	db.First(&stockValue, stockValueID)
+	db.First(&stockValue.Team, stockValue.TeamID)
+	db.First(&stockValue.Split, stockValue.SplitID)
 	
 	if stockValue.ID == 0 {
 		c.String(http.StatusNotFound, fmt.Sprintf("No stockValue with ID: %v was found", stockValueID))
