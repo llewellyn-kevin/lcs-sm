@@ -26,6 +26,13 @@ func SetRoutes() {
 		v1.GET("/splits/:split-id", GetSplit)
 		v1.POST("/splits", CreateSplit)
 		v1.DELETE("/splits/:split-id", DeleteSplit)
+
+		v1.GET("/stock-values", GetStockValues)
+		v1.GET("/stock-values/:stock-value-id", GetStockValue)
+		v1.DELETE("/stock-values/:stock-value-id", DeleteStockValue)
+		v1.PUT("/stock-values/:stock-value-id", UpdateStockValue)
+
+		v1.POST("/splits/:split-id/teams/:team-id/stock-values", CreateStockValue)
 	}
 
 	router.Run(":8080")
