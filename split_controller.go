@@ -24,12 +24,7 @@ func GetSplit(c *gin.Context) {
 	if split.ID == 0 {
 		c.String(http.StatusNotFound, fmt.Sprintf("No split with ID: %v was found", splitID))
 	} else {
-		c.JSON(http.StatusOK, gin.H{
-			"id": split.ID,
-			"league": split.League,
-			"season": split.Season,
-			"year": split.Year,
-		})
+		c.JSON(http.StatusOK, &split)
 	}
 }
 
@@ -48,12 +43,7 @@ func CreateSplit(c *gin.Context) {
 		if db.NewRecord(split) {
 			c.JSON(http.StatusOK, gin.H{
 				"message": "Split succesfully created",
-				"split": gin.H{
-					"id": split.ID,
-					"league": split.League,
-					"season": split.Season,
-					"year": split.Year,
-				},
+				"split": &split,
 			})
 		} else {
 			c.String(http.StatusInternalServerError, "Unable to create resource")
@@ -74,12 +64,7 @@ func DeleteSplit(c *gin.Context) {
 		db.Delete(&split)
 		c.JSON(http.StatusOK, gin.H{
 			"message": "Split succesfully deleted",
-			"split": gin.H{
-				"id": split.ID,
-				"league": split.League,
-				"season": split.Season,
-				"year": split.Year,
-			},
+			"split": &split,
 		})
 	}
 }

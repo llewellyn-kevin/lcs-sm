@@ -24,11 +24,7 @@ func GetTeam(c *gin.Context) {
 	if team.ID == 0 {
 		c.String(http.StatusNotFound, fmt.Sprintf("No team with ID: %v was found", teamID))
 	} else {
-		c.JSON(http.StatusOK, gin.H{
-			"id": team.ID,
-			"name": team.Name,
-			"value": team.CurrentValue,
-		})
+		c.JSON(http.StatusOK, &team)
 	}
 }
 
@@ -41,14 +37,7 @@ func CreateTeam(c *gin.Context) {
 	if db.NewRecord(team) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "Team succesfully created",
-			"team": gin.H{
-				"id": team.ID,
-				"name": team.Name,
-				"value": team.CurrentValue,
-			},
-			"endpoints": gin.H{
-				"GET": fmt.Sprintf("/v1/teams/%v", team.ID),
-			},
+			"team": &team,
 		})
 	} else {
 		c.String(http.StatusInternalServerError, "Unable to create resource")
@@ -68,12 +57,7 @@ func DeleteTeam(c *gin.Context) {
 		db.Delete(&team)
 		c.JSON(http.StatusOK, gin.H{
 			"message": "Team succesfully deleted",
-			"team": gin.H{
-				"id": team.ID,
-				"name": team.Name,
-				"value": team.CurrentValue,
-				"deleted_at": team.DeletedAt,
-			},
+			"team": &team,
 		})
 	}
 }
@@ -94,11 +78,7 @@ func UpdateTeam(c *gin.Context) {
 
 		c.JSON(http.StatusOK, gin.H{
 			"message": "Team value updated",
-			"team": gin.H{
-				"id": team.ID,
-				"name": team.Name,
-				"value": team.CurrentValue,
-			},
+			"team": &team,
 		})
 	}
 }
