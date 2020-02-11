@@ -21,6 +21,11 @@ func SetRoutes() {
 		v1.POST("/teams", CreateTeam)
 		v1.DELETE("/teams/:team-id", DeleteTeam)
 		v1.PUT("/teams/:team-id", UpdateTeam)
+
+		v1.GET("/splits", GetSplits)
+		v1.GET("/splits/:split-id", GetSplit)
+		v1.POST("/splits", CreateSplit)
+		v1.DELETE("/splits/:split-id", DeleteSplit)
 	}
 
 	router.Run(":8080")
