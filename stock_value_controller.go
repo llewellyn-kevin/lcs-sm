@@ -10,6 +10,7 @@ import(
 	"github.com/gin-gonic/gin"
 )
 
+// TODO: Currently returns values with null Team and Split member vars. Fix.
 func GetStockValues(c *gin.Context) {
 	var stockValues []models.StockValue
 	db.Find(&stockValues)
