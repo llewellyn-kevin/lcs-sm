@@ -1,20 +1,21 @@
 package main
 
 import(
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 func SetRoutes() {
 	router := gin.Default()
 
-	router.GET("/ping", func(c *gin.Context) {
+	router.GET("/api/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",
 		})
 	})
 
 	// API Version 1
-	v1 := router.Group("/v1")
+	v1 := router.Group("/api/v1")
 	{
 		v1.GET("/teams", GetTeams)
 		v1.GET("/teams/:team-id", GetTeam)
@@ -35,5 +36,6 @@ func SetRoutes() {
 		v1.POST("/splits/:split-id/teams/:team-id/stock-values", CreateStockValue)
 	}
 
+	router.Use(cors.Default())
 	router.Run(":8080")
 }
