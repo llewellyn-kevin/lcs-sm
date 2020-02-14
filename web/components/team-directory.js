@@ -1,14 +1,44 @@
-var teamDirectory = new Vue({
-    el: '#team-directory',
-    data: {
-        teams: [],
-    },
-    created: () => {
-        ax.get('/teams').then(response => {
-            this.teams = response;
-        }).catch(error => {
-            console.log(error);
-            console.log(error.response);
-        })
-    },
+Vue.component('team-directory', {
+  data: function() {
+    return {
+      loading: true,
+      teams: [],
+    }
+  },
+  created: function() {
+    console.log("team-directory created function");
+    ax.get('/teams').then(response => {
+      this.teams = response.data;
+      this.loading = false;
+    }).catch(error => {
+      console.log(error);
+      console.log(error.data);
+    });
+  },
+  template: `
+    <div id="team-directory">
+      <h4>Stock Ticker</h4>
+      <div v-if="loading">
+        <div class="alert alert-info" role="alert">
+          Fetching teams...
+        </div>
+      </div>
+      <div v-else>
+        <div v-if="teams.length == 0">
+          <div class="alert alert-danger" role="alert">
+            No teams found.
+          </div>
+        </div>
+        <div v-else>
+          <div class="list-group">
+            <button href="javascript:void(0);" v-for="team in teams" 
+              class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+              <strong>{{ team.Name }}</strong>
+              <span>{{ team.CurrentValue }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
 });
