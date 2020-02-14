@@ -13,19 +13,14 @@
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   </head>
   <body>
-    <div id="app">
-      <div class="row">
-        <div class="col-4">
-          <team-directory></team-directory>
-        </div>
-        <div class="col-8">
-          Active pane goes here
-        </div>
-      </div>
+    <div id="app" class="container">
+      <stock-window></stock-window>
     </div>
 
     <script src="./ajax-settings.js"></script>
+    <script src="./components/stock-window.js"></script>
     <script src="./components/team-directory.js"></script>
+    <script src="./components/stock-info.js"></script>
     <script src="./components/registration.js"></script>
   </body>
 </html>

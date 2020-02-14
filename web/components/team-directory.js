@@ -6,7 +6,6 @@ Vue.component('team-directory', {
     }
   },
   created: function() {
-    console.log("team-directory created function");
     ax.get('/teams').then(response => {
       this.teams = response.data;
       this.loading = false;
@@ -16,7 +15,7 @@ Vue.component('team-directory', {
     });
   },
   template: `
-    <div id="team-directory">
+    <div class="col4">
       <h4>Stock Ticker</h4>
       <div v-if="loading">
         <div class="alert alert-info" role="alert">
@@ -31,7 +30,8 @@ Vue.component('team-directory', {
         </div>
         <div v-else>
           <div class="list-group">
-            <button href="javascript:void(0);" v-for="team in teams" 
+            <button v-for="team in teams" 
+              v-on:click="$emit('change-team', team.ID)"
               class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
               <strong>{{ team.Name }}</strong>
               <span>{{ team.CurrentValue }}</span>
