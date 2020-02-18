@@ -20,7 +20,7 @@ func GetSplit(c *gin.Context) {
 	splitID := c.Param("split-id")
 	var split models.Split
 	db.First(&split, splitID)
-	
+
 	if split.ID == 0 {
 		c.String(http.StatusNotFound, fmt.Sprintf("No split with ID: %v was found", splitID))
 	} else {

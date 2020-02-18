@@ -24,12 +24,25 @@ func GetTeam(c *gin.Context) {
 	db.First(&team, teamID)
 	db.Where("team_id = ?", teamID).Find(&stockValues)
 	team.StockValues = stockValues
-	
+
 	if team.ID == 0 {
 		c.String(http.StatusNotFound, fmt.Sprintf("No team with ID: %v was found", teamID))
 	} else {
 		c.JSON(http.StatusOK, &team)
 	}
+}
+
+func SplitsByTeam(c *gin.Context) {
+  teamID := c.Param("team-id")
+  //var team models.Team
+  //var splits []models.Split
+
+  rows, err := db.Table("stock_values").Where("team_id = ?", teamID).Select("split_id").Group("split_id").Rows()
+  if err != nil {
+    c.JSON(500, "Internal Server Error")
+  } else {
+    c.JSON(http.StatusOK, rows)
+  }
 }
 
 func CreateTeam(c *gin.Context) {

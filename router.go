@@ -23,6 +23,8 @@ func SetRoutes() {
 		v1.DELETE("/teams/:team-id", DeleteTeam)
 		v1.PUT("/teams/:team-id", UpdateTeam)
 
+    v1.GET("/teams/:team-id/splits", SplitsByTeam)
+
 		v1.GET("/splits", GetSplits)
 		v1.GET("/splits/:split-id", GetSplit)
 		v1.POST("/splits", CreateSplit)
