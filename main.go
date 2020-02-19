@@ -1,7 +1,7 @@
 package main
 
 func main() {
-	ConnectDB("lcs_sm.db")
+	ConnectDB("lcs-sm.db")
 	defer db.Close()
 	SetRoutes()
 }
