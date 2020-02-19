@@ -3,44 +3,71 @@ Vue.component('team-split-info', {
   data: function() {
     return {
       stocks: [],
+      newWeek: 0,
+      newValue: 0,
+      stockCreated: false
     };
   },
-  created: function() {
-    ax.get('/splits/' + this.split.ID + '/teams/' + this.team.ID + '/stock-values').then(response => {
-      this.stocks = response.data 
+  methods: {
+    createStock(e) {
+      ax.post('/splits/'+this.split.ID+'/teams/'+this.team.ID+'/stock-values?week='+this.newWeek+'&value='+this.newValue)
+      .then(response => {
+        this.refreshStocks();
 
-      var ctx = this.$refs['graph-canvas'].getContext('2d');
-      var weekNumbers = [];
-      var values = [];
-
-      this.stocks.forEach(stock => {
-        weekNumbers.push(stock.Week);
-        values.push(stock.Value);
+        this.stockCreated = true;
+        setTimeout(function() {
+          this.stockCreated = false;
+        }, 1600);
+      }).catch(error => {
+        console.log(error);
+        console.log(error.data);
       });
+    },
+    refreshStocks() {
+      ax.get('/splits/' + this.split.ID + '/teams/' + this.team.ID + '/stock-values').then(response => {
+        this.stocks = response.data;
+        var zero = {"Week":0,"Value":0}
+        var mostRecent = this.stocks.reduce((a, i) => {
+          return i.Week > a.Week ? {"Week":i.Week,"Value":i.Value} : a 
+        }, zero);
+        this.newWeek = mostRecent.Week + 1;
+        this.newValue = mostRecent.Value;
 
-      new Chart(ctx, {
-        "type": "line",
-        "data": {
-          "labels": weekNumbers,
-          "datasets": [{
-            "label": this.team.Name + " Stock Trends",
-            "data": values,
-            "fill": false,
-            "borderColor": "rgb(75, 192, 192)",
-            "lineTension": 0.1 
-          }]
-        },
-        "options": {
-          "legend": {
-            "display": false
+        var ctx = this.$refs['graph-canvas'].getContext('2d');
+        var weekNumbers = [];
+        var values = [];
+
+        this.stocks.forEach(stock => {
+          weekNumbers.push(stock.Week);
+          values.push(stock.Value);
+        });
+
+        new Chart(ctx, {
+          "type": "line",
+          "data": {
+            "labels": weekNumbers,
+            "datasets": [{
+              "label": this.team.Name + " Stock Trends",
+              "data": values,
+              "fill": false,
+              "borderColor": "rgb(75, 192, 192)",
+              "lineTension": 0.1 
+            }]
+          },
+          "options": {
+            "legend": {
+              "display": false
+            }
           }
-        }
+        });
+      }).catch(error => {
+        console.log(error);
+        console.log(error.data);
       });
-
-    }).catch(error => {
-      console.log(error);
-      console.log(error.data);
-    });
+    }
+  },
+  created: function() {
+    this.refreshStocks();
   },
   template: `
     <div>
@@ -55,6 +82,13 @@ Vue.component('team-split-info', {
       </ul>
 
       <canvas ref="graph-canvas" width="800" height="600"></canvas>
+
+      <div v-if="stockCreated" class="alert alert-success">
+        Stock Succesfully Created
+      </div>
+      <input v-model="newWeek">
+      <input v-model="newValue">
+      <button type="button" class="btn btn-primary" v-on:click="createStock">New Stock</button>
     </div>
   `
 });
