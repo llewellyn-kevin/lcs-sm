@@ -17,7 +17,7 @@ Vue.component('stock-info', {
         console.log(error);
         console.log(error.data);
       }).finally(() => {
-        ax.get('/teams/' + this.team + '/splits/').then(response => {
+        ax.get('/splits/').then(response => {
           this.splits = response.data;
           this.splits.sort((a, b) => {
             // Sort by most recent Year first
