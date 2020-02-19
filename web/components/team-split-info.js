@@ -8,6 +8,35 @@ Vue.component('team-split-info', {
   created: function() {
     ax.get('/splits/' + this.split.ID + '/teams/' + this.team.ID + '/stock-values').then(response => {
       this.stocks = response.data 
+
+      var ctx = this.$refs['graph-canvas'].getContext('2d');
+      var weekNumbers = [];
+      var values = [];
+
+      this.stocks.forEach(stock => {
+        weekNumbers.push(stock.Week);
+        values.push(stock.Value);
+      });
+
+      new Chart(ctx, {
+        "type": "line",
+        "data": {
+          "labels": weekNumbers,
+          "datasets": [{
+            "label": this.team.Name + " Stock Trends",
+            "data": values,
+            "fill": false,
+            "borderColor": "rgb(75, 192, 192)",
+            "lineTension": 0.1 
+          }]
+        },
+        "options": {
+          "legend": {
+            "display": false
+          }
+        }
+      });
+
     }).catch(error => {
       console.log(error);
       console.log(error.data);
@@ -24,6 +53,8 @@ Vue.component('team-split-info', {
           <span>{{ stock.Value }}</span>
         </li>
       </ul>
+
+      <canvas ref="graph-canvas" width="800" height="600"></canvas>
     </div>
   `
 });
