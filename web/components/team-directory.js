@@ -30,7 +30,8 @@ Vue.component('team-directory', {
         </div>
         <div v-else>
           <div class="list-group">
-            <button v-for="team in teams" 
+            <button 
+              v-for="team in teams" 
               v-on:click="$emit('change-team', team.ID)"
               class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
               <strong>{{ team.Name }}</strong>

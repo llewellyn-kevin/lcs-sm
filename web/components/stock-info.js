@@ -4,7 +4,7 @@ Vue.component('stock-info', {
     return {
       loading: false,
       teamData: {},
-      splits: {},
+      splits: [],
     }
   },
   watch: {
@@ -17,7 +17,17 @@ Vue.component('stock-info', {
         console.log(error.data);
       }).finally(() => {
         ax.get('/teams/' + this.team + '/splits/').then(response => {
-          console.log(response.data);
+          this.splits = response.data;
+          this.splits.sort((a, b) => {
+            // Sort by most recent Year first
+            if(a.Year > b.Year) { return -1; }
+            else if(a.Year < b.Year) { return 1; }
+            else {
+              // In the same year sort by Summer, then Spring
+              if(a.Season == b.Season) { return 0; }
+              else { return a.Season == "Summer" ? -1 : 1 }
+            }
+          });
           this.loading = false;
         }).catch(error => {
           console.log(error);
@@ -39,7 +49,13 @@ Vue.component('stock-info', {
         </div>
         <div v-else>
           <h3>{{ teamData.Name }}</h3>
-          <p v-for="split in splits">{{ split.League }} {{ split.Season}} {{ split.Year }}</p>
+          <strong>Current Value: {{ teamData.CurrentValue }}</strong>
+          <team-split-info 
+            v-for="split in splits" 
+            v-bind:key="split.ID"
+            v-bind:team="teamData" 
+            v-bind:split="split">
+          </team-split-info>
         </div>
       </div>
     </div>
