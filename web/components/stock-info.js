@@ -37,7 +37,7 @@ Vue.component('stock-info', {
     },
   },
   template: `
-    <div class="col8">
+    <div class="col-lg-9">
       <div v-if="loading">
         <div class="alert alert-info" role="alert">
           Fetching team...

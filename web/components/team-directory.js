@@ -15,7 +15,7 @@ Vue.component('team-directory', {
     });
   },
   template: `
-    <div class="col4">
+    <div class="col-lg-3">
       <h4>Stock Ticker</h4>
       <div v-if="loading">
         <div class="alert alert-info" role="alert">

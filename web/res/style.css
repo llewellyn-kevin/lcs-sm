@@ -1,0 +1,16 @@
+* {
+  font-size: 14px;
+}
+
+canvas {
+  /*max-width: 450px;*/
+}
+
+form button, form label {
+  float: right;
+}
+
+ul.weekly-stocks-list {
+  font-size: 14px;
+  /*max-width: 250px;*/
+}

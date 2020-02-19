@@ -27,9 +27,7 @@ Vue.component('team-split-info', {
       ax.get('/splits/' + this.split.ID + '/teams/' + this.team.ID + '/stock-values').then(response => {
         this.stocks = response.data;
         var zero = {"Week":0,"Value":0}
-        var mostRecent = this.stocks.reduce((a, i) => {
-          return i.Week > a.Week ? {"Week":i.Week,"Value":i.Value} : a 
-        }, zero);
+        var mostRecent = this.stocks.reduce((a, i) => { return i.Week > a.Week ? {"Week":i.Week,"Value":i.Value} : a }, zero);
         this.newWeek = mostRecent.Week + 1;
         this.newValue = mostRecent.Value;
 
@@ -57,7 +55,10 @@ Vue.component('team-split-info', {
           "options": {
             "legend": {
               "display": false
-            }
+            },
+            "responsive": true,
+            "maintainAspectRatio": true,
+            "aspectRatio": 1.77
           }
         });
       }).catch(error => {
@@ -72,23 +73,41 @@ Vue.component('team-split-info', {
   template: `
     <div>
       <h5>{{ split.League }} {{ split.Season }} {{ split.Year }}</h5>
-      <ul class="list-group">
-        <li 
-          v-for="stock in stocks"
-          class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-          <strong>Week {{ stock.Week }}</strong>
-          <span>{{ stock.Value }}</span>
-        </li>
-      </ul>
+        <div class="row">
 
-      <canvas ref="graph-canvas" width="800" height="600"></canvas>
+          <div class="col-md">
+            <ul class="list-group weekly-stocks-list">
+              <li 
+                v-for="stock in stocks"
+                class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                <strong>Week {{ stock.Week }}</strong>
+                <span>{{ stock.Value }}</span>
+              </li>
+            </ul>
+          </div>
 
-      <div v-if="stockCreated" class="alert alert-success">
-        Stock Succesfully Created
+          <div class="col-md">
+            <canvas ref="graph-canvas"></canvas>
+
+            <form>
+              <div v-if="stockCreated" class="alert alert-success">
+                Stock Succesfully Created
+              </div>
+              
+              <div class="row">
+                <div class="col-sm"><label>Week</label></div>
+                <div class="col-sm"><input v-model="newWeek"></div>
+                <div class="w-100"></div>
+                <div class="col-sm"><label>Value</label></div>
+                <div class="col-sm"><input v-model="newValue"></div>
+                <div class="w-100"></div><div class="col-sm"></div>
+                <div class="col-sm">
+                  <button type="button" class="btn btn-primary" v-on:click="createStock">Create Stock</button>
+                </div></div>
+            </form>
+          </div>
+
+        </div>
       </div>
-      <input v-model="newWeek">
-      <input v-model="newValue">
-      <button type="button" class="btn btn-primary" v-on:click="createStock">New Stock</button>
-    </div>
   `
 });
