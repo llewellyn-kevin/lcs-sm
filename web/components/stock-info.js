@@ -16,20 +16,13 @@ Vue.component('stock-info', {
         console.log(error);
         console.log(error.data);
       }).finally(() => {
-        this.teamData.StockValues.forEach(stock => {
-          if(this.splits["split-" + stock.SplitID] == null) {
-            this.splits["split-" + stock.SplitID] = 'loading';
-            ax.get('/splits/' + stock.SplitID).then(response => {
-              console.log(response.data);
-              this.splits['split-' + stock.SplitID] = response.data;
-            }).catch(error => {
-              console.log(error);
-              console.log(error.data);
-            });
-          }
-          console.log(this.splits);
+        ax.get('/teams/' + this.team + '/splits/').then(response => {
+          console.log(response.data);
+          this.loading = false;
+        }).catch(error => {
+          console.log(error);
+          console.log(error.data);
         });
-        this.loading = false;
       });
     },
   },

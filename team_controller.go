@@ -38,7 +38,7 @@ func SplitsByTeam(c *gin.Context) {
   var(
 	  splits []models.Split
 	  split models.Split
- 	  splitID int
+	  splitID int
   )
 
   rows, err := db.Raw("SELECT split_id FROM stock_values WHERE team_id = ? GROUP BY split_id", teamID).Rows()
@@ -46,11 +46,11 @@ func SplitsByTeam(c *gin.Context) {
   for rows.Next() {
 	  rowErr := rows.Scan(&splitID)
 	  if rowErr != nil {
-		c.JSON(500, "Error getting row")
+		  c.JSON(500, "Error getting row")
 	  }
-	db.Where("id = ?", splitID).First(&split)
-	splits = append(splits, split)
-	split = models.Split{}
+    db.Where("id = ?", splitID).First(&split)
+    splits = append(splits, split)
+    split = models.Split{}
   }
   if err != nil {
     c.JSON(500, "Internal Server Error")
