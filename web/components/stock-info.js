@@ -5,6 +5,7 @@ Vue.component('stock-info', {
       loading: false,
       teamData: {},
       splits: [],
+      selectedSplit: 0,
     }
   },
   watch: {
@@ -28,6 +29,7 @@ Vue.component('stock-info', {
               else { return a.Season == "Summer" ? -1 : 1 }
             }
           });
+          this.selectedSplit = this.splits[0]
           this.loading = false;
         }).catch(error => {
           console.log(error);
@@ -50,11 +52,16 @@ Vue.component('stock-info', {
         <div v-else>
           <h3>{{ teamData.Name }}</h3>
           <strong>Current Value: {{ teamData.CurrentValue }}</strong>
+          <br />
+          <select v-model="selectedSplit">
+            <option v-for="split in splits" v-bind:value="split">
+              {{ split.League }} {{ split.Season }} {{ split.Year }}
+            </option>
+          </select>
           <team-split-info 
-            v-for="split in splits" 
-            v-bind:key="split.ID"
+            v-bind:key="selectedSplit.ID"
             v-bind:team="teamData" 
-            v-bind:split="split">
+            v-bind:split="selectedSplit">
           </team-split-info>
         </div>
       </div>
