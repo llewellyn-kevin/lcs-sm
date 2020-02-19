@@ -27,12 +27,21 @@ func GetStockValue(c *gin.Context) {
 	db.First(&stockValue, stockValueID)
 	db.First(&stockValue.Team, stockValue.TeamID)
 	db.First(&stockValue.Split, stockValue.SplitID)
-	
+
 	if stockValue.ID == 0 {
 		c.String(http.StatusNotFound, fmt.Sprintf("No stockValue with ID: %v was found", stockValueID))
 	} else {
 		c.JSON(http.StatusOK, &stockValue)
 	}
+}
+
+func GetSplitTeamStocks(c *gin.Context) {
+  splitID := c.Param("split-id")
+  teamID := c.Param("team-id")
+  var stockValues []models.StockValue
+
+  db.Where("team_id = ? AND split_id = ?", teamID, splitID).Find(&stockValues)
+  c.JSON(http.StatusOK, &stockValues)
 }
 
 func CreateStockValue(c *gin.Context) {
