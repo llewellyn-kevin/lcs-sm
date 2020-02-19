@@ -35,13 +35,27 @@ func GetTeam(c *gin.Context) {
 func SplitsByTeam(c *gin.Context) {
   teamID := c.Param("team-id")
   //var team models.Team
-  //var splits []models.Split
+  var(
+	  splits []models.Split
+	  split models.Split
+ 	  splitID int
+  )
 
-  rows, err := db.Table("stock_values").Where("team_id = ?", teamID).Select("split_id").Group("split_id").Rows()
+  rows, err := db.Raw("SELECT split_id FROM stock_values WHERE team_id = ? GROUP BY split_id", teamID).Rows()
+  defer rows.Close()
+  for rows.Next() {
+	  rowErr := rows.Scan(&splitID)
+	  if rowErr != nil {
+		c.JSON(500, "Error getting row")
+	  }
+	db.Where("id = ?", splitID).First(&split)
+	splits = append(splits, split)
+	split = models.Split{}
+  }
   if err != nil {
     c.JSON(500, "Internal Server Error")
   } else {
-    c.JSON(http.StatusOK, rows)
+    c.JSON(http.StatusOK, splits)
   }
 }
 
