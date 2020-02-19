@@ -35,7 +35,7 @@ func SetRoutes() {
 		v1.DELETE("/stock-values/:stock-value-id", DeleteStockValue)
 		v1.PUT("/stock-values/:stock-value-id", UpdateStockValue)
 
-    v1.POST("/splits/:split-id/teams/:team-id/stock-values", GetSplitTeamStocks)
+    v1.GET("/splits/:split-id/teams/:team-id/stock-values", GetSplitTeamStocks)
 		v1.POST("/splits/:split-id/teams/:team-id/stock-values", CreateStockValue)
 	}
 
