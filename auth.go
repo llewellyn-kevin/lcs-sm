@@ -81,10 +81,6 @@ func Authorize() gin.HandlerFunc {
       })
       if err != nil { // Token is expired or could not be parsed
         setAnonymous(c)
-      }
-
-      if token == nil {
-        setAnonymous(c)
       } else {
         if claims, ok := token.Claims.(*AuthClaims); ok && token.Valid { // Good token
           //log.Println(fmt.Sprintf("Token expires in %d s", claims.ExpiresAt - now))
