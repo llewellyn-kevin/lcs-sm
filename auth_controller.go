@@ -127,11 +127,7 @@ func (a *AuthController) Signup(c *gin.Context) {
 // Signout empties the user's authentication token and returns an 
 // OK response.
 func (a *AuthController) Signout(c *gin.Context) {
-  if auth, exists := c.Get("auth"); !auth.(bool) || !exists {
-    c.JSON(http.StatusUnauthorized, gin.H{
-      "error": "you are not authorzied to make this request",
-    })
-  } else {
+  if(HasPermission(c)) {
     Logout(c)
 
     c.JSON(http.StatusOK, gin.H{"success": "logged out"})

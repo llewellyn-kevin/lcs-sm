@@ -112,6 +112,19 @@ func CheckAuthenticated() gin.HandlerFunc {
   }
 }
 
+// HasPermission returns true if the auth flag has been set to
+// approved by the authentication middleware. Else it sets an
+// unauthorized status on the context and returns false.
+func HasPermission(c *gin.Context) bool {
+  if auth, exists := c.Get("auth"); !auth.(bool) || !exists {
+    c.JSON(http.StatusUnauthorized, gin.H{
+      "error": "you are not authorzied to make this request",
+    })
+    return false
+  }
+  return true
+}
+
 // setAnonymous sets flags to indicate to controller method handlers that
 // the user who made the request has not supplied a valid authentication
 // token. 
