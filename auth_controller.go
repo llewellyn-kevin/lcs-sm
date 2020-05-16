@@ -50,7 +50,13 @@ func (a *AuthController) Signin(c *gin.Context) {
   request.Password = hash(request.Password)
 
   if IsValidAuth(c, a.store, request.Username, request.Password) {
-    Login(c, request.Username)
+    user, err := GetUser(a.store, request.Username)
+    if err != nil {
+      c.JSON(http.StatusInternalServerError, gin.H{
+        "error": err.Error(),
+      })
+    }
+    Login(c, user.Username, user.Role)
     c.JSON(http.StatusOK, gin.H{
       "success": fmt.Sprintf("authenticated user %v", request.Username),
     })
@@ -110,7 +116,7 @@ func (a *AuthController) Signup(c *gin.Context) {
   a.store.Do("SET", usernamekey, uid)
 
   // set cookie that authenticates user requests
-  Login(c, request.Username)
+  Login(c, request.Username, "user")
 
   // send a success response
   c.JSON(http.StatusOK, gin.H{
@@ -121,7 +127,13 @@ func (a *AuthController) Signup(c *gin.Context) {
 // Signout empties the user's authentication token and returns an 
 // OK response.
 func (a *AuthController) Signout(c *gin.Context) {
-  Logout(c)
+  if auth, exists := c.Get("auth"); !auth.(bool) || !exists {
+    c.JSON(http.StatusUnauthorized, gin.H{
+      "error": "you are not authorzied to make this request",
+    })
+  } else {
+    Logout(c)
 
-  c.JSON(http.StatusOK, gin.H{"success": "logged out"})
+    c.JSON(http.StatusOK, gin.H{"success": "logged out"})
+  }
 }

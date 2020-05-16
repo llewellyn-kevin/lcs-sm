@@ -24,11 +24,6 @@ const(
   // If a request is made within this many seconds of the token expiring, a new
   // token will automatically be generated and sent.
   TokenRefreshWindow = 20
-
-  // Codes used by the Authorization middleware to help controller method
-  // handlers identify current authentication status of the client.
-  Authenticated = "auth"
-  Anonymous = "anoma"
 )
 
 // Reads the secret file for the given encoding method into a byte array that
@@ -38,20 +33,29 @@ func GetSecret(method string) ([]byte, error) {
   return ioutil.ReadFile(fmt.Sprintf("jwt_secret.%s", method))
 }
 
+// User is used to contain information about the current user.
+type User struct {
+  Id       int
+  Username string
+  Role     string
+}
+
 // AuthClaims is a model used to encode and parse the claims from the JWT, it 
 // uses primarily the standard claims with one addition for the Username of the
 // current user.
 type AuthClaims struct {
   Username string `json:"usr"`
+  Role     string `json:"rol"`
   jwt.StandardClaims
 }
 
 // GetAuthClaims takes the username of a user and returns an AuthClaims object
 // that can be used to generate a JWT.
-func GetAuthClaims(user string) AuthClaims {
+func GetAuthClaims(user, role string) AuthClaims {
   now := time.Now().Unix()
   return AuthClaims{
     user,
+    role,
     jwt.StandardClaims{
       Issuer: ServiceName,
       IssuedAt: now,
@@ -79,18 +83,35 @@ func Authorize() gin.HandlerFunc {
         setAnonymous(c)
       }
 
-      if claims, ok := token.Claims.(*AuthClaims); ok && token.Valid { // Good token
-        log.Println(fmt.Sprintf("Token expires in %d s", claims.ExpiresAt - now))
-        if claims.ExpiresAt - now <= TokenRefreshWindow { // Issue new token
-          log.Println("need to make a new token")
-          Logout(c)
-          Login(c, claims.Username)
-        }
-
-        setAuthorized(c, claims.Username)
-      } else { // Tokens claims could not be validated
+      if token == nil {
         setAnonymous(c)
+      } else {
+        if claims, ok := token.Claims.(*AuthClaims); ok && token.Valid { // Good token
+          //log.Println(fmt.Sprintf("Token expires in %d s", claims.ExpiresAt - now))
+          if claims.ExpiresAt - now <= TokenRefreshWindow { // Issue new token
+            //log.Println("need to make a new token")
+            Logout(c)
+            Login(c, claims.Username, claims.Role)
+          }
+
+          setAuthorized(c, claims.Username, claims.Role)
+        } else { // Tokens claims could not be validated
+          setAnonymous(c)
+        }
       }
+    }
+  }
+}
+
+// CheckAuthenticated ensures that the user has a valid role set by 
+// Authorize middleware. Otherwise it returns  
+func CheckAuthenticated() gin.HandlerFunc {
+  return func(c *gin.Context) {
+    log.Println(c.Get("role"))
+    if role, set := c.Get("role"); !set || role == "" {
+      c.Set("auth", false)
+    } else {
+      c.Set("auth", true)
     }
   }
 }
@@ -99,14 +120,14 @@ func Authorize() gin.HandlerFunc {
 // the user who made the request has not supplied a valid authentication
 // token. 
 func setAnonymous(c *gin.Context) {
-  c.Set("authorization", Anonymous)
+  c.Set("role", "")
   c.Set("user", "")
 }
 
 // setAuthorized sets flags to indicate to controller method handlers that
 // the user who made the request is authorized, and what their username is.
-func setAuthorized(c *gin.Context, username string) {
-  c.Set("authorization", Authenticated)
+func setAuthorized(c *gin.Context, username, role string) {
+  c.Set("role", role)
   c.Set("user", username)
 }
 
@@ -115,8 +136,8 @@ func setAuthorized(c *gin.Context, username string) {
 // will be used to validate the requests by the Authorization middleware. This
 // function merely creates a token for a given user. It does not validate that
 // the user has supplied a valid password.
-func Login(c *gin.Context, user string) {
-  token := jwt.NewWithClaims(jwt.SigningMethodHS256, GetAuthClaims(user))
+func Login(c *gin.Context, user, role string) {
+  token := jwt.NewWithClaims(jwt.SigningMethodHS256, GetAuthClaims(user, role))
 
   secret, err := GetSecret("hmac")
   if err != nil { // Secret file is not found
@@ -134,7 +155,7 @@ func Login(c *gin.Context, user string) {
 
 // Replaces the JWT on the client's device with an empty cookie.
 func Logout(c *gin.Context) {
-  c.SetCookie(CookieName, "", TokenLifetime, CookiePath, CookieDomain, http.SameSiteNoneMode, false, false)
+  c.SetCookie(CookieName, "EXPIRED", TokenLifetime, CookiePath, CookieDomain, http.SameSiteNoneMode, false, false)
 }
 
 // IsValidAuth takes a database connection, username, and password; and
@@ -152,4 +173,24 @@ func IsValidAuth(c *gin.Context, store redis.Conn, user, pass string) bool {
   } else {
     return db_pass == pass
   }
+}
+
+// GetUser takes a redis store connection and a username and returns
+// a User object corresponding to the username. Returns and error if 
+// there is an issue connecting to the store or any of the fields
+// are not found. 
+func GetUser(store redis.Conn, username string) (User, error) {
+  uid, err := redis.Int(store.Do("GET", fmt.Sprintf("username:%s", username)))
+  if err != nil {
+    return User{}, err
+  }
+  userkey := fmt.Sprintf("user:%d", uid)
+  if err != nil {
+    return User{}, err
+  }
+  role, err := redis.String(store.Do("HGET", userkey, "role"))
+  if err != nil {
+    return User{}, err
+  }
+  return User{uid, username, role}, nil
 }

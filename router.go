@@ -8,6 +8,7 @@ import(
 
 func SetRoutes() {
 	router := gin.Default()
+  router.Use(Authorize())
 
   store, err := redis.Dial("tcp", ":6379")
   if err != nil {
@@ -48,15 +49,16 @@ func SetRoutes() {
 		v1.POST("/splits/:split-id/teams/:team-id/stock-values", CreateStockValue)
 	}
 
-  anon := router.Group("/api/v2/auth")
+  anonymous := router.Group("/api/v2/auth")
   {
-    anon.POST("/signup", authController.Signup)
-    anon.POST("/signin", authController.Signin)
+    anonymous.POST("/signup", authController.Signup)
+    anonymous.POST("/signin", authController.Signin)
   }
 
-  user := router.Group("/api/v2/user")
+  authorized := router.Group("/api/v2/user")
+  authorized.Use(CheckAuthenticated())
   {
-    user.POST("/signout", authController.Signout)
+    authorized.POST("/signout", authController.Signout)
   }
 
   /*admin := router.Group("/api/v2/admin")
