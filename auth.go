@@ -1,7 +1,6 @@
 package main
 
 import(
-  "crypto/sha256"
   "fmt"
   "io/ioutil"
   "log"
@@ -19,7 +18,7 @@ const(
   CookiePath = "/"
   CookieDomain = "127.0.0.1"
   // The name of the service, given in the JWT.
-  ServiceName = "PaaS"
+  ServiceName = "lcs-sm"
   // How long, in seconds, a token will stay valid.
   TokenLifetime = 60
   // If a request is made within this many seconds of the token expiring, a new
@@ -96,15 +95,6 @@ func Authorize() gin.HandlerFunc {
   }
 }
 
-// Hasher looks for any passwords in the query string and hashes them. 
-func Hasher() gin.HandlerFunc {
-  return func(c *gin.Context) {
-    if c.Query("password") != "" {
-      c.Set("password", sha256.Sum256([]byte(c.Query("password"))))
-    }
-  }
-}
-
 // setAnonymous sets flags to indicate to controller method handlers that
 // the user who made the request has not supplied a valid authentication
 // token. 
@@ -152,7 +142,11 @@ func Logout(c *gin.Context) {
 // the password matches. Returns false if the user could not be found or the
 // password does not match.
 func IsValidAuth(c *gin.Context, store redis.Conn, user, pass string) bool {
-  db_pass, err := redis.String(store.Do("HGET", fmt.Sprintf("user:%s", user), "password"))
+  uid, err := redis.Int(store.Do("GET", fmt.Sprintf("username:%s", user)))
+  if err != nil {
+    return false
+  }
+  db_pass, err := redis.String(store.Do("HGET", fmt.Sprintf("user:%d", uid), "password"))
   if err != nil {
     return false
   } else {

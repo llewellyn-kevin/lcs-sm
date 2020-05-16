@@ -3,10 +3,19 @@ package main
 import(
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+  "github.com/gomodule/redigo/redis"
 )
 
 func SetRoutes() {
 	router := gin.Default()
+
+  store, err := redis.Dial("tcp", ":6379")
+  if err != nil {
+    panic(err)
+  }
+  defer store.Close()
+
+  authController := InitAuthController(store)
 
 	router.GET("/api/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
@@ -38,6 +47,26 @@ func SetRoutes() {
     v1.GET("/splits/:split-id/teams/:team-id/stock-values", GetSplitTeamStocks)
 		v1.POST("/splits/:split-id/teams/:team-id/stock-values", CreateStockValue)
 	}
+
+  anon := router.Group("/api/v2/auth")
+  {
+    anon.POST("/signup", authController.Signup)
+    anon.POST("/signin", authController.Signin)
+  }
+
+  user := router.Group("/api/v2/user")
+  {
+    user.POST("/signout", authController.Signout)
+  }
+
+  /*admin := router.Group("/api/v2/admin")
+  {
+    admin.POST("/stock", controllers.StocksCreate)
+  }
+
+  su := router.Group("/api/v2/su")
+  {
+  }*/
 
 	router.Use(cors.Default())
 	router.Run(":8080")
