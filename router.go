@@ -17,6 +17,7 @@ func SetRoutes() {
   defer store.Close()
 
   authController := InitAuthController(store)
+  leagueController := InitLeagueController(store)
 
 	router.GET("/api/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
@@ -49,26 +50,33 @@ func SetRoutes() {
 		v1.POST("/splits/:split-id/teams/:team-id/stock-values", CreateStockValue)
 	}
 
-  anonymous := router.Group("/api/v2/auth")
+  anonymous := router.Group("/api/v2")
   {
     anonymous.POST("/signup", authController.Signup)
     anonymous.POST("/signin", authController.Signin)
+
+    anonymous.GET("/leagues", leagueController.Index)
+    anonymous.GET("/leagues/:id", leagueController.Show)
   }
 
-  authorized := router.Group("/api/v2/user")
+  authorized := router.Group("/api/v2")
   authorized.Use(CheckAuthenticated())
   {
     authorized.POST("/signout", authController.Signout)
   }
 
-  /*admin := router.Group("/api/v2/admin")
+  admin := router.Group("/api/v2/admin")
   {
-    admin.POST("/stock", controllers.StocksCreate)
+    admin.POST("/leagues", leagueController.Create)
+    admin.PUT("/leagues/:id", leagueController.Update)
+    admin.DELETE("/leagues/:id", leagueController.Destroy)
   }
 
+  /*
   su := router.Group("/api/v2/su")
   {
-  }*/
+  }
+  */
 
 	router.Use(cors.Default())
 	router.Run(":8080")
