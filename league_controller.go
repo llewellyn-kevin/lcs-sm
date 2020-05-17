@@ -24,11 +24,36 @@ func InitLeagueController(store redis.Conn) *LeagueController {
 // League contains a representation of the leagues from the data 
 // store.
 type League struct {
-  Name string `json:"name" binding:"required"`
+  Id    int     `json:"id"`
+  Name  string  `json:"name" binding:"required"`
 }
 
+// Index returns a JSON response containing the name and id of every
+// league.
+// 
+// Returns an InternalServerError response if there is an issue
+// communicating with the store.
 func (l *LeagueController) Index(c *gin.Context) {
-  c.JSON(http.StatusOK, gin.H{"success":"not implemented"})
+  // Grab a list of all leagues
+  var leagues []League
+  ids, err := redis.Ints(l.store.Do("LRANGE", "leagues", 0, -1))
+  if err != nil {
+    c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+    return
+  }
+
+  // Instantiate league objects to be returned
+  for _, v := range ids {
+    leaguekey := fmt.Sprintf("league:%d", v)
+    if name, err := redis.String(l.store.Do("HGET", leaguekey, "name")); err != nil {
+      c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+      return
+    } else {
+      leagues = append(leagues, League{v, name})
+    }
+  }
+
+  c.JSON(http.StatusOK, gin.H{"leagues":leagues})
 }
 
 func (l *LeagueController) Show(c *gin.Context) {
@@ -56,6 +81,7 @@ func (l *LeagueController) Create(c *gin.Context) {
       c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
       return
     }
+    league.Id = id
     leaguekey := fmt.Sprintf("league:%d", id)
 
     // Create league hash
@@ -71,7 +97,10 @@ func (l *LeagueController) Create(c *gin.Context) {
     }
 
     // Send success response
-    c.JSON(http.StatusOK, gin.H{"success":"not implemented"})
+    c.JSON(http.StatusOK, gin.H{
+      "success":"new league created",
+      "league": league,
+    })
   }
 }
 
