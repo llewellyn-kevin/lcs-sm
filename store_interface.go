@@ -2,7 +2,6 @@ package main
 
 import(
   "fmt"
-  "log"
   "reflect"
 
   "github.com/gomodule/redigo/redis"
@@ -17,8 +16,6 @@ func HashToStruct(store redis.Conn, key string, target interface{}) error {
 
   id := targetValue.FieldByName("Id").Int()
   key = fmt.Sprintf("%s:%d", key, id)
-
-  log.Println(key)
 
   for i := 0; i < targetType.NumField(); i++ {
     field := targetType.Field(i)
