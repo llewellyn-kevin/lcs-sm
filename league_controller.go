@@ -8,14 +8,21 @@ import(
   "github.com/gomodule/redigo/redis"
 )
 
+// LeagueController contains a reference to the data store containing
+// league info, as well as method handlers for league related
+// requests.
 type LeagueController struct {
   store redis.Conn
 }
 
+// InitLeagueController instantiates a LeagueController object
+// with a reference to the data store.
 func InitLeagueController(store redis.Conn) *LeagueController {
   return &LeagueController{store}
 }
 
+// League contains a representation of the leagues from the data 
+// store.
 type League struct {
   Name string `json:"name" binding:"required"`
 }
