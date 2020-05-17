@@ -100,11 +100,22 @@ func Authorize() gin.HandlerFunc {
 }
 
 // CheckAuthenticated ensures that the user has a valid role set by 
-// Authorize middleware. Otherwise it returns  
+// Authorize middleware. Otherwise it returns false.
 func CheckAuthenticated() gin.HandlerFunc {
   return func(c *gin.Context) {
-    log.Println(c.Get("role"))
     if role, set := c.Get("role"); !set || role == "" {
+      c.Set("auth", false)
+    } else {
+      c.Set("auth", true)
+    }
+  }
+}
+
+// CheckAdmin ensures that the user has the admin role set by
+// Authorize middleware. Otherwise it returns false.
+func CheckAdmin() gin.HandlerFunc {
+  return func(c *gin.Context) {
+    if role, set := c.Get("role"); !set || role != "admin" {
       c.Set("auth", false)
     } else {
       c.Set("auth", true)

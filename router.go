@@ -65,7 +65,8 @@ func SetRoutes() {
     authorized.POST("/signout", authController.Signout)
   }
 
-  admin := router.Group("/api/v2/admin")
+  admin := router.Group("/api/v2")
+  admin.Use(CheckAdmin())
   {
     admin.POST("/leagues", leagueController.Create)
     admin.PUT("/leagues/:id", leagueController.Update)
