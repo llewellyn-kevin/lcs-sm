@@ -3,6 +3,7 @@ package main
 import(
   "fmt"
   "net/http"
+  "strconv"
 
   "github.com/gin-gonic/gin"
   "github.com/gomodule/redigo/redis"
@@ -25,7 +26,7 @@ func InitLeagueController(store redis.Conn) *LeagueController {
 // store.
 type League struct {
   Id    int     `json:"id"`
-  Name  string  `json:"name" binding:"required"`
+  Name  string  `hash-key:"name" json:"name" binding:"required"`
 }
 
 // Index returns a JSON response containing the name and id of every
@@ -56,8 +57,36 @@ func (l *LeagueController) Index(c *gin.Context) {
   c.JSON(http.StatusOK, gin.H{"leagues":leagues})
 }
 
+// Show takes the id of a League and returns the corresponding 
+// league in JSON with OK response. 
+//
+// Returns a BadRequest response if the id in the route is 
+// not parsable as an int. Returns a InternaleServerError
+// response if there is a problem with the store.
 func (l *LeagueController) Show(c *gin.Context) {
-  c.JSON(http.StatusOK, gin.H{"success":"not implemented"})
+  // instantiate league object and get id
+  var league League
+  var err error
+  league.Id, err = strconv.Atoi(c.Param("id"))
+  if err != nil {
+    errText := c.Param("id")
+    c.JSON(http.StatusBadRequest, gin.H{
+      "error": fmt.Sprintf("could not parse '%s' as id", errText),
+    })
+    return
+  }
+
+  // fill struct values from store
+  if err := HashToStruct(l.store, "league", &league); err != nil {
+    c.JSON(http.StatusBadRequest, gin.H{
+      "error": fmt.Sprintf("no league with id '%d' found", league.Id),
+    })
+
+    return
+  }
+
+  // return struct
+  c.JSON(http.StatusOK, gin.H{"league":league})
 }
 
 // Create takes a JSON Post request with the name for a new league, 
