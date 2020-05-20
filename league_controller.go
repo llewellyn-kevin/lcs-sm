@@ -25,15 +25,11 @@ func InitLeagueController(store redis.Conn) *LeagueController {
 // League contains a representation of the leagues from the data 
 // store.
 type League struct {
-  Id    int     `json:"id"`
-  Name  string  `hash-key:"name" json:"name" binding:"required"`
+  Id    int     `redii:"pk" json:"id"`
+  Name  string  `redii:"name" json:"name" binding:"required"`
 }
 
-// Index returns a JSON response containing the name and id of every
-// league.
-// 
-// Returns an InternalServerError response if there is an issue
-// communicating with the store.
+// Index attempts to return a slice of all leagues in the store.
 func (l *LeagueController) Index(c *gin.Context) {
   // Grab a list of all leagues
   var leagues []League
@@ -57,12 +53,8 @@ func (l *LeagueController) Index(c *gin.Context) {
   c.JSON(http.StatusOK, gin.H{"leagues":leagues})
 }
 
-// Show takes the id of a League and returns the corresponding 
-// league in JSON with OK response. 
-//
-// Returns a BadRequest response if the id in the route is 
-// not parsable as an int. Returns a InternaleServerError
-// response if there is a problem with the store.
+// Show takes an id as a url parameter and attempts to return the 
+// associated resource.
 func (l *LeagueController) Show(c *gin.Context) {
   // instantiate league object and get id
   var league League
@@ -89,43 +81,21 @@ func (l *LeagueController) Show(c *gin.Context) {
   c.JSON(http.StatusOK, gin.H{"league":league})
 }
 
-// Create takes a JSON Post request with the name for a new league, 
-// adds the leage to the data store, and returns an OK response.
-//
-// A InternalServerError response indicates a problem communicating
-// with the store. A BadRequest response indicates a problem with 
-// the request.
+// Create accepts a JSON Header POST request with the name for a 
+// new league and attempts to create a resource in the data store.
 func (l *LeagueController) Create(c *gin.Context) {
   if(HasPermission(c)) {
-    // Unmarshall request
     var league League
     if err := c.ShouldBindJSON(&league); err != nil {
       c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
       return
     }
 
-    // Get next league id and generate a key for new league
-    id, err := redis.Int(l.store.Do("INCR", "next-league-id"))
-    if err != nil {
-      c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-      return
-    }
-    league.Id = id
-    leaguekey := fmt.Sprintf("league:%d", id)
-
-    // Create league hash
-    if _, err := l.store.Do("HMSET", leaguekey, "name", league.Name); err != nil {
+    if err := CreateHash(l.store, "league", &league); err != nil {
       c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
       return
     }
 
-    // Add leagueid to the list of leagues
-    if _, err := l.store.Do("RPUSH", "leagues", id); err != nil {
-      c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-      return
-    }
-
-    // Send success response
     c.JSON(http.StatusOK, gin.H{
       "success":"new league created",
       "league": league,
