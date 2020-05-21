@@ -201,3 +201,29 @@ func UpdateHash(store redis.Conn, key string, target interface{}) error {
 
   return nil
 }
+
+// DeleteHash deletes a resources in redis store based on the id
+// provided.
+func DeleteHash(store redis.Conn, key string, id int) error {
+  pluralize := pluralize.NewClient()
+  pkey := pluralize.Plural(key)
+  hkey := fmt.Sprintf("%s:%d", key, id)
+
+  if exists, err := redis.Bool(store.Do("EXISTS", hkey)); !exists {
+    return fmt.Errorf("no resource could be found with id: %d", id)
+  } else if err != nil {
+    return fmt.Errorf("trouble checking if resource exists")
+  }
+
+  if _, err := store.Do("LREM", pkey, 0, id); err != nil {
+    return fmt.Errorf("trouble removing an element from list")
+  }
+
+  if count, err := redis.Int(store.Do("DEL", hkey)); err != nil {
+    return fmt.Errorf("trouble deleting key")
+  } else if count != 1 {
+    return fmt.Errorf("expected to delete 1 resource. Instead deleted %d", count)
+  }
+
+  return nil
+}

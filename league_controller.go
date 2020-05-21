@@ -133,8 +133,26 @@ func (l *LeagueController) Update(c *gin.Context) {
   }
 }
 
+// Destroy takes an id attempts to delete the resource with the
+// associated id
 func (l *LeagueController) Destroy(c *gin.Context) {
   if(HasPermission(c)) {
-    c.JSON(http.StatusOK, gin.H{"success":"not implemented"})
+    id, err := strconv.Atoi(c.Param("id"))
+    if err != nil {
+      errText := c.Param("id")
+      c.JSON(http.StatusBadRequest, gin.H{
+        "error": fmt.Sprintf("could not parse '%s' as id", errText),
+      })
+      return
+    }
+
+    if err = DeleteHash(l.store, "league", id); err != nil {
+      c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+      return
+    }
+
+    c.JSON(http.StatusOK, gin.H{
+      "success":fmt.Sprintf("deleted league with id: %d", id),
+    })
   }
 }
