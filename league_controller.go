@@ -31,23 +31,21 @@ type League struct {
 
 // Index attempts to return a slice of all leagues in the store.
 func (l *LeagueController) Index(c *gin.Context) {
-  // Grab a list of all leagues
   var leagues []League
-  ids, err := redis.Ints(l.store.Do("LRANGE", "leagues", 0, -1))
+  ids, err := GetList(l.store, "league")
   if err != nil {
     c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
     return
   }
 
-  // Instantiate league objects to be returned
   for _, v := range ids {
-    leaguekey := fmt.Sprintf("league:%d", v)
-    if name, err := redis.String(l.store.Do("HGET", leaguekey, "name")); err != nil {
+    var league League
+    league.Id = v
+    if err := GetHash(l.store, "league", &league); err != nil {
       c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
       return
-    } else {
-      leagues = append(leagues, League{v, name})
     }
+    leagues = append(leagues, league)
   }
 
   c.JSON(http.StatusOK, gin.H{"leagues":leagues})
@@ -69,11 +67,10 @@ func (l *LeagueController) Show(c *gin.Context) {
   }
 
   // fill struct values from store
-  if err := HashToStruct(l.store, "league", &league); err != nil {
+  if err := GetHash(l.store, "league", &league); err != nil {
     c.JSON(http.StatusBadRequest, gin.H{
       "error": fmt.Sprintf("no league with id '%d' found", league.Id),
     })
-
     return
   }
 
@@ -103,9 +100,36 @@ func (l *LeagueController) Create(c *gin.Context) {
   }
 }
 
+// Update accepts a JSON Header POST request with a name and id
+// for a given league and attempts to update the resource in the
+// data store.
 func (l *LeagueController) Update(c *gin.Context) {
   if(HasPermission(c)) {
-    c.JSON(http.StatusOK, gin.H{"success":"not implemented"})
+    var league League
+    if err := c.ShouldBindJSON(&league); err != nil {
+      c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+      return
+    }
+
+    var err error
+    league.Id, err = strconv.Atoi(c.Param("id"))
+    if err != nil {
+      errText := c.Param("id")
+      c.JSON(http.StatusBadRequest, gin.H{
+        "error": fmt.Sprintf("could not parse '%s' as id", errText),
+      })
+      return
+    }
+
+    if err := UpdateHash(l.store, "league", &league); err != nil {
+      c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+      return
+    }
+
+    c.JSON(http.StatusOK, gin.H{
+      "success":"league updated",
+      "league": league,
+    })
   }
 }
 

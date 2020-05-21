@@ -11,7 +11,7 @@ import(
 // HashToStruct uses a store connection and a key generated from a
 // hashName and hashId (using the format {hashName}:{hashId}) to
 // assign all the values of a struct. 
-func HashToStruct(store redis.Conn, key string, target interface{}) error {
+func GetHash(store redis.Conn, key string, target interface{}) error {
   targetValue := reflect.ValueOf(target).Elem()
   targetType := targetValue.Type()
 
@@ -55,6 +55,18 @@ func HashToStruct(store redis.Conn, key string, target interface{}) error {
   }
 
   return nil
+}
+
+func GetList(store redis.Conn, key string) ([]int, error) {
+  pluralize := pluralize.NewClient()
+  pkey := pluralize.Plural(key)
+
+  ids, err := redis.Ints(store.Do("LRANGE", pkey, 0, -1))
+  if err != nil {
+    return make([]int, 0), err
+  }
+
+  return ids, nil
 }
 
 // CreateHash creates a hash resource in a redis store based on the
@@ -120,6 +132,71 @@ func CreateHash(store redis.Conn, key string, target interface{}) error {
   // Add to list of hash ids
   if _, err = store.Do("RPUSH", pkey, id); err != nil {
     return err
+  }
+
+  return nil
+}
+
+// CreateHash creates a hash resource in a redis store based on the
+// data in a struct.
+func UpdateHash(store redis.Conn, key string, target interface{}) error {
+  // Reflect on parts of struct
+  targetValue := reflect.ValueOf(target).Elem()
+  targetType := targetValue.Type()
+
+  // Get Id
+  var id int64
+  for i := 0; i < targetType.NumField(); i++ {
+    field := targetType.Field(i)
+    tag := field.Tag.Get("redii")
+
+    if tag == "pk" {
+      value := targetValue.FieldByName(field.Name)
+      id = value.Int()
+    }
+  }
+
+  // Get key for hash
+  key = fmt.Sprintf("%s:%d", key, id)
+
+  if exists, err := redis.Bool(store.Do("EXISTS", key)); !exists {
+    return fmt.Errorf("No hash found at key: %s", key)
+  } else if err != nil {
+    return err
+  }
+
+  // Create hash at key
+  for i := 0; i < targetType.NumField(); i++ {
+    field := targetType.Field(i)
+    tag := field.Tag.Get("redii")
+
+    if tag != "" && tag != "pk" { // This field is a key in the hash
+      value := targetValue.FieldByName(field.Name)
+      switch value.Kind() {
+        case reflect.Int64, reflect.Int32, reflect.Int16, reflect.Int8, reflect.Int:
+          unpacked := value.Uint()
+          if _, err := store.Do("HSET", key, tag, unpacked); err != nil {
+            return err
+          }
+        case reflect.Bool:
+          unpacked := value.Bool()
+          if _, err := store.Do("HSET", key, tag, unpacked); err != nil {
+            return err
+          }
+        case reflect.Float64, reflect.Float32:
+          unpacked := value.Float()
+          if _, err := store.Do("HSET", key, tag, unpacked); err != nil {
+            return err
+          }
+        case reflect.String:
+          unpacked := value.String()
+          if _, err := store.Do("HSET", key, tag, unpacked); err != nil {
+            return err
+          }
+        default:
+          return fmt.Errorf("Could not identify type of field: %s", field.Name)
+      }
+    }
   }
 
   return nil
