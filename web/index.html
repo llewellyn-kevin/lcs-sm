@@ -14,15 +14,19 @@
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   </head>
   <body>
+    <script src="./ajax-settings.js"></script>
+
     <div id="app" class="container">
-      <stock-window></stock-window>
+      <auth></auth>
     </div>
 
-    <script src="./ajax-settings.js"></script>
-    <script src="./components/team-split-info.js"></script>
+    <!--<script src="./components/team-split-info.js"></script>
     <script src="./components/stock-window.js"></script>
     <script src="./components/team-directory.js"></script>
-    <script src="./components/stock-info.js"></script>
-    <script src="./components/registration.js"></script>
+    <script src="./components/stock-info.js"></script>-->
+    <script src="./components/auth.js"></script>
+    <script>
+      new Vue({el: "#app"})
+    </script>
   </body>
 </html>

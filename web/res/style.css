@@ -2,10 +2,6 @@
   font-size: 14px;
 }
 
-canvas {
-  /*max-width: 450px;*/
-}
-
 form button, form label {
   float: right;
 }
