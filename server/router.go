@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/gomodule/redigo/redis"
@@ -10,7 +12,13 @@ func SetRoutes() {
 	router := gin.Default()
 	router.Use(Authorize())
 
-	store, err := redis.Dial("tcp", ":6379")
+	var storeURL string
+	if storeURL = os.Getenv("REDIS_URL"); storeURL == "" {
+		// by default, dial localhost:6379, no authentication
+		storeURL = "redis://:@:6379"
+	}
+
+	store, err := redis.DialURL(storeURL)
 	if err != nil {
 		panic(err)
 	}
