@@ -3,3 +3,4 @@ makefile
 simple_server.go
 cookies
 *.hmac
+node_modules
