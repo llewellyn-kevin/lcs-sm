@@ -1,12 +1,22 @@
 import React from 'react';
 
+// getDelta takes a team object and returns the difference betwen 
+// the two most recent values as a span object. If there are not 
+// two values for the team, 0 is returned.
 function getDelta(team) {
     if(team.values.length <= 1) {
-        return 0;
+        return(
+            <span className="dNone">0</span>
+        );
     }
-    return team.values[0] - team.values[1];
+    let delta = team.values[0] - team.values[1];
+    return (delta < 0)
+        ? <span className="dMinus">{Math.abs(delta)}</span>
+        : <span className="dPlus">{delta}</span>
 }
 
+// latestValue takes a team object and returns the most recent stock
+// value the team has had.
 function latestValue(team) {
     if(team.values.length === 0) {
         return 0;
@@ -14,12 +24,16 @@ function latestValue(team) {
     return team.values[0];
 }
 
+// StockTickerItem is a react component that displays current team 
+// information. Meant to be composed in the StockTicker component.
 export function StockTickerItem(props) {
     return(
         <div className="StockTicker-item">
-            {props.team.code} 
-            {getDelta(props.team)} 
-            {latestValue(props.team)}
+            <span className="mono">
+                {props.team.code} 
+                {getDelta(props.team)} 
+                {latestValue(props.team)}
+            </span>
         </div>
     );
 }

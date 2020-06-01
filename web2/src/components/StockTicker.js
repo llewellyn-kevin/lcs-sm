@@ -1,6 +1,8 @@
 import React from 'react';
 import {StockTickerItem} from './StockTickerItem.js';
 
+// StockTicker displays StockTickerItems for each of the currently
+// selected League and Season.
 export class StockTicker extends React.Component {
     constructor(props) {
         super(props);

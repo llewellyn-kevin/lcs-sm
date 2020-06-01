@@ -6,6 +6,16 @@ body {
   color: #ffffff;
 }
 
+span.mono {
+  font-family: "Roboto Mono", serif;
+}
+
+span.dNone::before { content: "▪" }
+span.dMinus::before { content: "▴" }
+span.dPlus::before {content: "▾" }
+span.dMinus { color: #FF5E6E; }
+span.dPlus { color: #45FF71; }
+
 h1, h2, h3, h4, h5, h6 {
   padding: 12px 0 4px 0;
   margin: 0;
