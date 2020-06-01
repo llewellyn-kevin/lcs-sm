@@ -6,16 +6,6 @@ body {
   color: #ffffff;
 }
 
-span.mono {
-  font-family: "Roboto Mono", serif;
-}
-
-span.dNone::before { content: "▪" }
-span.dMinus::before { content: "▴" }
-span.dPlus::before {content: "▾" }
-span.dMinus { color: #FF5E6E; }
-span.dPlus { color: #45FF71; }
-
 h1, h2, h3, h4, h5, h6 {
   padding: 12px 0 4px 0;
   margin: 0;
@@ -26,6 +16,26 @@ h3 { font-size: 38px; }
 h4 { font-size: 28px; }
 h5 { font-size: 20px; }
 h6 { font-size: 14px; }
+
+span.mono {
+  font-family: "Roboto Mono", serif;
+}
+
+span.dNone::before { content: "▪" }
+span.dMinus::before { content: "▴" }
+span.dPlus::before {content: "▾" }
+span.dMinus { color: #FF5E6E; }
+span.dPlus { color: #45FF71; }
+
+.btn {
+  cursor: pointer;
+}
+.btn-primary {
+  background-color: #404A80;
+}
+.btn-secondary {
+  background-color: #7986CB;
+}
 
 .App-header {
   background-color: rgba(255,255,255,.1);

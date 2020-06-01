@@ -1,4 +1,5 @@
 import React from 'react';
+import {CustomSelect} from './CustomSelect.js';
 import {StockTickerItem} from './StockTickerItem.js';
 
 // StockTicker displays StockTickerItems for each of the currently
@@ -37,6 +38,9 @@ export class StockTicker extends React.Component {
 
         return(
             <aside className="StockTicker">
+                <CustomSelect
+                    label="LEAGUE"
+                    options={["LCS", "LEC", "LCK", "LPL"]} />
                 {listItems}
             </aside>
         );
