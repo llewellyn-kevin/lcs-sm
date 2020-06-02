@@ -21,7 +21,6 @@ span.mono {
   font-family: "Roboto Mono", serif;
 }
 
-span.dNone::before { content: "▪" }
 span.dMinus::before { content: "▴" }
 span.dPlus::before {content: "▾" }
 span.dMinus { color: #FF5E6E; }
@@ -35,6 +34,39 @@ span.dPlus { color: #45FF71; }
 }
 .btn-secondary {
   background-color: #7986CB;
+}
+
+.CustomSelect {
+  padding: 4px 8px;
+  margin-bottom: 12px;
+}
+.CustomSelect-value {
+  font-size: 22px;
+}
+.CustomSelect-label {
+  font-size: 13px;
+}
+.CustomSelect-arrow {
+  float: right;
+}
+
+.StockTicker-item {
+  padding: 4px 10px;
+}
+.StockTicker-item div {
+  display: inline-block;
+  margin: 4px 8px;
+  width: 50px;
+  font-size: 22px;
+}
+.StockTicker-item-code {
+  width: 50px;
+}
+.StockTicker-item-delta {
+  text-align: center;
+}
+.StockTicker-item-value {
+  float: right;
 }
 
 .App-header {

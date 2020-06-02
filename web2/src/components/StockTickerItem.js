@@ -6,7 +6,7 @@ import React from 'react';
 function getDelta(team) {
     if(team.values.length <= 1) {
         return(
-            <span className="dNone">0</span>
+            <span className="dNone">-</span>
         );
     }
     let delta = team.values[0] - team.values[1];
@@ -30,9 +30,9 @@ export function StockTickerItem(props) {
     return(
         <div className="StockTicker-item">
             <span className="mono">
-                {props.team.code} 
-                {getDelta(props.team)} 
-                {latestValue(props.team)}
+                <div className="StockTicker-item-code">{props.team.code}</div>
+                <div className="StockTicker-item-delta">{getDelta(props.team)}</div>
+                <div className="StockTicker-item-value">{latestValue(props.team)}</div>
             </span>
         </div>
     );

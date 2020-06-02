@@ -23,8 +23,8 @@ export class CustomSelect extends React.Component {
         return(
             <div className="CustomSelect btn btn-primary">
                 <div className="CustomSelect-value">{this.props.options[this.state.value]}</div>
-                <div className="CustomSelect-label">{this.props.label}</div>
                 <div className="CustomSelect-arrow" onClick={this.incrSelection}>⏷</div>
+                <div className="CustomSelect-label">{this.props.label}</div>
             </div>
         );
     }
