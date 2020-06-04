@@ -1,0 +1,49 @@
+- request:
+    method: GET
+    path: /api/v2/leagues
+  response:
+    headers:
+      Content-Type: application/json
+      Access-Control-Allow-Origin: '*'
+    body: >
+      [
+        {
+          "id": 0,
+          "name": "LCS"
+        },
+        {
+          "id": 1,
+          "name": "LEC"
+        }
+      ]
+
+- request:
+    method: GET
+    path: /api/v2/seasons
+  response:
+    headers:
+      Content-Type: application/json
+      Access-Control-Allow-Origin: '*'
+    body: >
+      [
+        {
+          "id": 0,
+          "year": 2019,
+          "season": "Spring"
+        },
+        {
+          "id": 1,
+          "year": 2019,
+          "season": "Summer"
+        }, 
+        {
+          "id": 2,
+          "year": 2020,
+          "season": "Spring"
+        },
+        {
+          "id": 3,
+          "year": 2020,
+          "season": "Summer"
+        }
+      ]

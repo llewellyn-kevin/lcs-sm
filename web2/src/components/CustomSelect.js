@@ -20,11 +20,17 @@ export class CustomSelect extends React.Component {
     }
 
     render() {
-        return(
-            <div className="CustomSelect btn btn-primary">
-                <div className="CustomSelect-value">{this.props.options[this.state.value]}</div>
-                <div className="CustomSelect-arrow" onClick={this.incrSelection}>⏷</div>
+        return (this.props.options.length > 0)
+        ? (
+            <div onClick={this.incrSelection} className="CustomSelect btn btn-primary">
+                <div className="CustomSelect-value">{this.props.options[this.state.value].name}</div>
+                <div className="CustomSelect-arrow">⏷</div>
                 <div className="CustomSelect-label">{this.props.label}</div>
+            </div>
+        )
+        : (
+            <div className="CustomSelect btn btn-primary">
+                <div className="CustomSelect-value">fetching...</div>
             </div>
         );
     }

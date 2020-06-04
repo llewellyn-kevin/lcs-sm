@@ -1,4 +1,5 @@
 import React from 'react';
+import axios from 'axios';
 import {CustomSelect} from './CustomSelect.js';
 import {StockTickerItem} from './StockTickerItem.js';
 
@@ -27,8 +28,28 @@ export class StockTicker extends React.Component {
                     code: "CLG",
                     values: [540],
                 }
-            ]
+            ],
+            leagues: [],
+            seasons: [],
         };
+    }
+
+    componentDidMount() {
+        axios.get('http://localhost:8080/api/v2/leagues').then(res => {
+            this.setState({ leagues: res.data });
+        }).catch(err => {
+            console.log(err);
+        });
+
+        axios.get('http://localhost:8080/api/v2/seasons').then(res => {
+            const seasons = res.data.map(s => {
+                s.name = s.year + ' ' + s.season;
+                return s;
+            });
+            this.setState({ seasons });
+        }).catch(err => {
+            console.log('error', err);
+        });
     }
 
     render() {
@@ -38,9 +59,14 @@ export class StockTicker extends React.Component {
 
         return(
             <aside className="StockTicker">
-                <CustomSelect
-                    label="LEAGUE"
-                    options={["LCS", "LEC", "LCK", "LPL"]} />
+                <div className="StockTicker-CustomSelect-row">
+                    <CustomSelect
+                        label="LEAGUE"
+                        options={this.state.leagues} />
+                    <CustomSelect
+                        label="SEASON"
+                        options={this.state.seasons} />
+                </div>
                 {listItems}
             </aside>
         );

@@ -21,8 +21,8 @@ span.mono {
   font-family: "Roboto Mono", serif;
 }
 
-span.dMinus::before { content: "▴" }
-span.dPlus::before {content: "▾" }
+span.dPlus::before { content: "▴" }
+span.dMinus::before {content: "▾" }
 span.dMinus { color: #FF5E6E; }
 span.dPlus { color: #45FF71; }
 
@@ -36,9 +36,29 @@ span.dPlus { color: #45FF71; }
   background-color: #7986CB;
 }
 
+.StockTicker {
+  width: 400px;
+}
+
+.StockTicker .CustomSelect {
+  position: relative;
+  flex-grow: 1;
+  margin-right: 2px;
+}
+.StockTicker .CustomSelect:last-child {
+  margin-right: 0;
+}
+.StockTicker-CustomSelect-row {
+  display: flex;
+  flex-direction: row;
+}
+
+header {
+  margin-bottom: 12px;
+}
+
 .CustomSelect {
   padding: 4px 8px;
-  margin-bottom: 12px;
 }
 .CustomSelect-value {
   font-size: 22px;
@@ -47,7 +67,9 @@ span.dPlus { color: #45FF71; }
   font-size: 13px;
 }
 .CustomSelect-arrow {
-  float: right;
+  position: absolute;
+  right: 8px;
+  bottom: 4px;
 }
 
 .StockTicker-item {

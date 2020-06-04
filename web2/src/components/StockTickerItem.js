@@ -6,7 +6,7 @@ import React from 'react';
 function getDelta(team) {
     if(team.values.length <= 1) {
         return(
-            <span className="dNone">-</span>
+            <span>-</span>
         );
     }
     let delta = team.values[0] - team.values[1];
