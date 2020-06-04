@@ -30,7 +30,7 @@ export class StockTicker extends React.Component {
                 }
             ],
             leagues: [],
-            seasons: [],
+            splits: [],
         };
     }
 
@@ -41,14 +41,14 @@ export class StockTicker extends React.Component {
             console.log(err);
         });
 
-        axios.get('http://localhost:8080/api/v2/seasons').then(res => {
-            const seasons = res.data.map(s => {
-                s.name = s.year + ' ' + s.season;
+        axios.get('http://localhost:8080/api/v2/splits').then(res => {
+            const splits = res.data.map(s => {
+                s.name = s.year + ' ' + s.split;
                 return s;
             });
-            this.setState({ seasons });
+            this.setState({ splits });
         }).catch(err => {
-            console.log('error', err);
+            console.log(err);
         });
     }
 
@@ -65,7 +65,7 @@ export class StockTicker extends React.Component {
                         options={this.state.leagues} />
                     <CustomSelect
                         label="SEASON"
-                        options={this.state.seasons} />
+                        options={this.state.splits} />
                 </div>
                 {listItems}
             </aside>

@@ -19,7 +19,7 @@
 
 - request:
     method: GET
-    path: /api/v2/seasons
+    path: /api/v2/splits
   response:
     headers:
       Content-Type: application/json
@@ -29,21 +29,21 @@
         {
           "id": 0,
           "year": 2019,
-          "season": "Spring"
+          "split": "Spring"
         },
         {
           "id": 1,
           "year": 2019,
-          "season": "Summer"
+          "split": "Summer"
         }, 
         {
           "id": 2,
           "year": 2020,
-          "season": "Spring"
+          "split": "Spring"
         },
         {
           "id": 3,
           "year": 2020,
-          "season": "Summer"
+          "split": "Summer"
         }
       ]
