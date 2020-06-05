@@ -28,22 +28,96 @@
       [
         {
           "id": 0,
-          "year": 2019,
+          "year": 2020,
           "split": "Spring"
         },
         {
           "id": 1,
-          "year": 2019,
-          "split": "Summer"
-        }, 
-        {
-          "id": 2,
-          "year": 2020,
-          "split": "Spring"
-        },
-        {
-          "id": 3,
           "year": 2020,
           "split": "Summer"
         }
       ]
+
+- request:
+    method: GET
+    path: /api/v2/splits/0
+  response:
+    headers:
+      Content-Type: application/json
+      Access-Control-Allow-Origin: '*'
+    body: >
+      [ 2, 3 ]
+
+- request:
+    method: GET
+    path: /api/v2/splits/1
+  response:
+    headers:
+      Content-Type: application/json
+      Access-Control-Allow-Origin: '*'
+    body: >
+      [ 0, 1 ]
+
+- request:
+    method: GET
+    path: /api/v2/teams/0
+  response:
+    headers:
+      Content-Type: application/json
+      Access-Control-Allow-Origin: '*'
+    body: >
+      {
+        "id": 0,
+        "split": 1,
+        "name": "Team Liquid",
+        "code": "TL",
+        "values": [650, 666]
+      }
+
+- request:
+    method: GET
+    path: /api/v2/teams/1
+  response:
+    headers:
+      Content-Type: application/json
+      Access-Control-Allow-Origin: '*'
+    body: >
+      {
+        "id": 1,
+        "split": 1,
+        "name": "Cloud9",
+        "code": "C9",
+        "values": [700, 708]
+      }
+
+- request:
+    method: GET
+    path: /api/v2/teams/2
+  response:
+    headers:
+      Content-Type: application/json
+      Access-Control-Allow-Origin: '*'
+    body: >
+      {
+        "id": 2,
+        "split": 0,
+        "name": "Team Liquid",
+        "code": "TL",
+        "values": [711, 695]
+      }
+
+- request:
+    method: GET
+    path: /api/v2/teams/3
+  response:
+    headers:
+      Content-Type: application/json
+      Access-Control-Allow-Origin: '*'
+    body: >
+      {
+        "id": 3,
+        "split": 0,
+        "name": "Cloud9",
+        "code": "C9",
+        "values": [754, 768]
+      }

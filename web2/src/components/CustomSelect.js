@@ -1,5 +1,7 @@
 import React from 'react';
 
+// CustomSelect is a custom implementation of a basic html select
+// box with unique formatting and properties.
 export class CustomSelect extends React.Component {
     constructor(props) {
         super(props);
@@ -11,6 +13,8 @@ export class CustomSelect extends React.Component {
         this.incrSelection = this.incrSelection.bind(this);
     }
 
+    // temporarily increment selection on click instead of having
+    // options appear. Notify parent of change.
     incrSelection(e) {
         let newValue = this.state.value + 1;
         if(newValue >= this.props.options.length) {

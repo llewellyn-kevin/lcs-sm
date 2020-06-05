@@ -9,26 +9,7 @@ export class StockTicker extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            teams: [
-                {
-                    id: 0,
-                    name: "Cloud9",
-                    code: "C9",
-                    values: [758, 721]
-                },
-                {
-                    id: 1,
-                    name: "Team Liquid",
-                    code: "TL",
-                    values: [566, 590]
-                },
-                {
-                    id: 2,
-                    name: "Counter Logic Gaming",
-                    code: "CLG",
-                    values: [540],
-                }
-            ],
+            teams: [],
             leagues: [],
             splits: [],
             selectedLeague: 0,
@@ -44,7 +25,15 @@ export class StockTicker extends React.Component {
         this.setState({ selectedLeague: value });
     }
     updateSplit(value) {
-        this.setState({ selectedSplit: value });
+        this.setState({ selectedSplit: value }, () => {
+            const splitId = this.currentSplit().id;
+            axios.get('http://localhost:8080/api/v2/splits/' + splitId)
+                .then((r) => {
+                    this.setState({ teams: r.data });
+                }).catch((err) => {
+                    console.log(err);
+                });
+        });
     }
 
     // helpers to fetch the current league/split selected from the
@@ -77,16 +66,24 @@ export class StockTicker extends React.Component {
                 s.name = s.year + ' ' + s.split;
                 return s;
             });
-            this.setState({ splits });
+            this.setState({ splits }, () => {
+                if(this.state.splits.length > 0) {
+                    // if there are splits, pick the first one by default
+                    this.updateSplit(0);
+                }
+            });
         }).catch(err => {
             console.log(err);
         });
     }
 
     render() {
-        const listItems = this.state.teams.map((team) =>
-            <StockTickerItem key={team.id.toString()} team={team} />
-        );
+        let listItems = <p>No teams found in selected split.</p>;
+        if(this.state.teams.length > 0) {
+            listItems = this.state.teams.map((team) =>
+                <StockTickerItem key={team} team={team} />
+            );
+        }
 
         return(
             <aside className="StockTicker">
@@ -101,8 +98,6 @@ export class StockTicker extends React.Component {
                         onValueChange={this.updateSplit} />
                 </div>
                 {listItems}
-                <p>{this.currentLeague().name}</p>
-                <p>{this.currentSplit().name}</p>
             </aside>
         );
     }
