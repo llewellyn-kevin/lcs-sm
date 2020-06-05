@@ -17,6 +17,7 @@ export class CustomSelect extends React.Component {
             newValue = 0;
         }
         this.setState({ value: newValue });
+        this.props.onValueChange(newValue);
     }
 
     render() {
